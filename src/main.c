@@ -2,7 +2,7 @@
  * @file    main.c
  * @brief   Punto de entrada del sistema de control de LEDs por potenciometros.
    =============================================================================
- * CONCLUSION DEL EQUIPO
+ * CONCLUSIONES DEL EQUIPO
  * Integrantes: Alexa Huerta Sanchez, Arumi Mar Romero 
  *  1. el uso de pvParameters evita usar variables globales o duplicar codigo, 
  * permitiendo instanciar una sola funcion de tarea con configuraciones distintas
@@ -41,7 +41,6 @@ void app_main(void)
     adc_reader_init();   
     /* TODO 2. Inicializar subsistema LED PWM (tres canales LEDC) */
     leds_init(); 
-    }
     /* TODO 3. Crear las tres tareas FreeRTOS e iniciar el scheduler */
     tasks_create_all();
     /* app_main retorna; FreeRTOS continua ejecutando las tareas */

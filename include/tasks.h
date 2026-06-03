@@ -34,7 +34,7 @@
 #define TASK_PERIOD_MS          50U
 
 /** Tamano de stack asignado a cada tarea (en words de 4 bytes). */
-#define TASK_STACK_SIZE_WORDS   1024U
+#define TASK_STACK_SIZE_WORDS   2048U
 
 /** Cada cuantos ciclos se imprime el estado por UART (reduce carga). */
 #define TASK_LOG_EVERY_N        20U
