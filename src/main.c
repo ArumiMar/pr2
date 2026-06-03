@@ -41,7 +41,6 @@ void app_main(void)
     adc_reader_init();   
     /* TODO 2. Inicializar subsistema LED PWM (tres canales LEDC) */
     leds_init(); 
-    }
     /* TODO 3. Crear las tres tareas FreeRTOS e iniciar el scheduler */
     tasks_create_all();
     /* app_main retorna; FreeRTOS continua ejecutando las tareas */
