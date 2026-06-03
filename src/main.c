@@ -1,21 +1,18 @@
 /**
  * @file    main.c
  * @brief   Punto de entrada del sistema de control de LEDs por potenciometros.
- *
- * =============================================================================
+   =============================================================================
  * CONCLUSION DEL EQUIPO
- * Integrantes: Nombre Apellido, Nombre Apellido, Nombre Apellido
- *
- * El uso de pvParameters con una estructura task_params_t permite instanciar
- * una sola funcion de tarea (vTaskPotLED) tres veces con configuraciones
- * distintas, eliminando codigo duplicado y facilitando el mantenimiento.
- * Al asignar prioridades distintas (1, 2, 3) observamos que el planificador
- * preemptivo de FreeRTOS siempre atiende primero la tarea de mayor prioridad
- * cuando esta sale de su estado bloqueado, independientemente de que tarea
- * estuviera en ejecucion. Como los tres periodos son iguales (50 ms), la
- * diferencia de prioridades se manifiesta en el orden de ejecucion cuando
- * multiples tareas desbloquean al mismo tick del RTOS.
- * =============================================================================
+ * Integrantes: Alexa Huerta Sanchez, Arumi Mar Romero 
+ *  1. el uso de pvParameters evita usar variables globales o duplicar codigo, 
+ * permitiendo instanciar una sola funcion de tarea con configuraciones distintas
+ *  2. la diferencia de prioridad se hace visible si dos o mas tareas salen de su 
+ * retardo (vTaskDelay) exactamente en el mismo tick; el planificador preemptivo 
+ * priorizara siempre la ejecucion de la tarea con mayor prioridad 
+ *  3. usar vTaskDelay() bloquea la tarea y cede el procesador al idle task 
+ *  4. para agregar un cuarto canal solo haria falta mapear el hardware en 
+ * leds.c/adc_reader.c, crear una instancia params_ch3 en tasks.c y llamar a 
+ * xTaskCreate una cuarta vez
  *
  * Descripcion:
  *   Inicializa los perifericos (ADC y LEDC) y arranca tres tareas FreeRTOS.
@@ -34,35 +31,18 @@
 #include "adc_reader.h"
 #include "leds.h"
 #include "tasks.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-
 /* ------------------------------------------------------------------ */
 /*  Punto de entrada                                                   */
 /* ------------------------------------------------------------------ */
-static const char *TAG = "PRUEBA_ADC";
 
 void app_main(void)
 {
     /* TODO 1. Inicializar subsistema ADC (tres potenciometros) */
-    adc_reader_init();    // bucle infinito para leer e imprimir los valores
-    for(;;) {
-        uint16_t pot0 = adc_reader_get_raw(0);
-        uint16_t pot1 = adc_reader_get_raw(1);
-        uint16_t pot2 = adc_reader_get_raw(2);
-        
-        ESP_LOGI(TAG, "POT0: %u  |  POT1: %u  |  POT2: %u", pot0, pot1, pot2);
-
+    adc_reader_init();   
     /* TODO 2. Inicializar subsistema LED PWM (tres canales LEDC) */
-   // leds_init(); 
-     //   leds_set_duty(0, 127);
-     //   leds_set_duty(1, 127);
-     //   leds_set_duty(2, 127);
-  //  for(;;) {
-  //      vTaskDelay(pdMS_TO_TICKS(1000));
+    leds_init(); 
     }
     /* TODO 3. Crear las tres tareas FreeRTOS e iniciar el scheduler */
-    
+    tasks_create_all();
     /* app_main retorna; FreeRTOS continua ejecutando las tareas */
 }
