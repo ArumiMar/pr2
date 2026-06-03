@@ -46,7 +46,13 @@ void app_main(void)
     /* TODO 1. Inicializar subsistema ADC (tres potenciometros) */
     
     /* TODO 2. Inicializar subsistema LED PWM (tres canales LEDC) */
-    
+    leds_init(); 
+        leds_set_duty(0, 127);
+        leds_set_duty(1, 127);
+        leds_set_duty(2, 127);
+    for(;;) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
     /* TODO 3. Crear las tres tareas FreeRTOS e iniciar el scheduler */
     
     /* app_main retorna; FreeRTOS continua ejecutando las tareas */
