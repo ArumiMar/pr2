@@ -21,6 +21,7 @@
 #include "adc_reader.h"
 #include "leds.h"
 #include "esp_log.h"
+#include "esp_system.h"
 
 /* ------------------------------------------------------------------ */
 /*  Etiqueta de log para este modulo                                   */
@@ -77,23 +78,31 @@ void vTaskPotLED(void *pvParameters)
     for (;;)
      {
         /*TODO  1. Leer potenciometro: valor raw de 12 bits [0, 4095] */
-        
+        uint16_t raw = adc_reader_get_raw(cfg->adc_channel);
 
         /* TODO  2. Escalar a duty PWM de 8 bits [0, 255] */
-        
+        uint8_t duty = adc_reader_to_duty(raw);
 
         /* TODO 3. Aplicar brillo al LED correspondiente */
-        
+        leds_set_duty(cfg->led_channel, duty);
 
         /* TODO    4. Imprimir estado periodicamente (cada TASK_LOG_EVERY_N ciclos),raw, duty, name
          *    para no saturar el puerto UART */
-        
+        if (cycle_count % TASK_LOG_EVERY_N == 0) {
+            ESP_LOGI(TAG, "[%s] raw=%u duty=%u heap=%lu wm=%u",
+                     cfg->name, 
+                     raw, 
+                     duty, 
+                     (unsigned long)esp_get_free_heap_size(), 
+                     (unsigned int)uxTaskGetStackHighWaterMark(NULL));
+        }
+        cycle_count++;
         
 
         /* TODO 5. Bloquear la tarea durante el periodo configurado.
          *    Durante este tiempo el planificador puede ejecutar
          *    otras tareas (multitarea cooperativa-apropiativa). */
-        
+        vTaskDelay(pdMS_TO_TICKS(TASK_PERIOD_MS));   
     }
 
     /* Nunca se llega aqui, pero se deja por buena practica de programación :) */
@@ -109,6 +118,8 @@ void tasks_create_all(void)
     BaseType_t ret;
 
     /* TODO  Task Create Canal 0 - Prioridad 1 (menor) */
+    ret = xTaskCreate(vTaskPotLED, "PotLED_0", TASK_STACK_SIZE_WORDS, (void *)&params_ch0, 1, &s_task_handles[0]);
+    configASSERT(ret == pdPASS);
     /*
         Example:
     
@@ -121,9 +132,12 @@ void tasks_create_all(void)
         configASSERT(ret == pdPASS);
     */
    /* TODO  Task Create Canal 1 - Prioridad 2 (menor) */
- 
+    ret = xTaskCreate(vTaskPotLED, "PotLED_1", TASK_STACK_SIZE_WORDS, (void *)&params_ch1, 2, &s_task_handles[1]);
+    configASSERT(ret == pdPASS);
+    
     /* TODO Task Create Canal 2 - Prioridad 3 (mayor) */
-
+    ret = xTaskCreate(vTaskPotLED, "PotLED_2", TASK_STACK_SIZE_WORDS, (void *)&params_ch2, 3, &s_task_handles[2]);
+    configASSERT(ret == pdPASS);
 
     ESP_LOGI("TASKS", "Tres tareas creadas correctamente");
 }
